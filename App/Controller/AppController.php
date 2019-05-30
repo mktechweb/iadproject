@@ -1,17 +1,21 @@
 <?php
 namespace App\Controller;
 
-
 class AppController
 {
-	protected  $template = 'template';
+	protected  $template = 'layout';
+
+	public function __construct()
+    {
+        $this->viewPath = ROOTDIR . '/App/Views/';
+    }
 
     protected function render($view, $variables = [])
     {
         ob_start();
         extract($variables);
-        require(ROOTDIR . '/App/Views/'. str_replace('.', '/', $view) . '.php');
+        require($this->viewPath . str_replace('.', '/', $view) . '.php');
         $content = ob_get_clean();
-        require(ROOTDIR . '/App/Views/' .  $this->template . '.php');
+        require($this->viewPath . $this->template . '.php');
     }
 }

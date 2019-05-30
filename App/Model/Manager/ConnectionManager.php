@@ -2,39 +2,36 @@
 
 namespace App\Model\Manager;
 
-use App\Model\Model;
+use App\Repositories\Repository;
 use App\Model\Entity\Connection;
 
-class ConnectionManager extends Model
-{
+class ConnectionManager {
+
 	private $db;
 
-    public function __construct()
+    public function __construct(Repository $db)
     {
-        $this->db = new Model;
+        $this->db = $db;
     }
 
     public function add(Connection $connection)
   	{
-        $this->getBdd();
-  		$statement = 'INSERT INTO connection(user_id, datetime) VALUES(?, ?)';
+        $query = 'INSERT INTO connection(user_id, datetime) VALUES(?, ?)';
   		$date = (new \DateTime())->format('Y-m-d H:i:s');
-  		$this->db->prepare($statement,[$connection->getUserid(), $date], true);
+  		$this->db->prepare($query,[$connection->getUserid(), $date], true);
   	}
 
   	public function update(Connection $connection)
   	{
-        $this->getBdd();
-		$statement = 'UPDATE connection SET datetime = ? WHERE user_id = ?';
+        $query = 'UPDATE connection SET datetime = ? WHERE user_id = ?';
 		$date = (new \DateTime())->format('Y-m-d H:i:s');
-		$this->db->prepare($statement,[$date, $connection->getUserid()], true);
+		$this->db->prepare($query,[$date, $connection->getUserid()], true);
 	}
 
 	public function findByUserId($userId)
 	{
-        $this->getBdd();
-		$statement = 'SELECT * FROM connection WHERE user_id = ?';
-		$data = $this->db->prepare($statement,[$userId], true);
+        $query = 'SELECT * FROM connection WHERE user_id = ?';
+		$data = $this->db->prepare($query,[$userId], true);
 
 		if ($data) {
 			return new Connection($data);
@@ -45,11 +42,10 @@ class ConnectionManager extends Model
 
   	public function findAll()
 	{
-        $this->getBdd();
 		$connexions = [];
 
-		$statement = 'SELECT * FROM connection';
-		$list = $this->db->prepare($statement,[] , false);
+        $query = 'SELECT * FROM connection';
+		$list = $this->db->prepare($query,[] , false);
 
 		foreach ($list as $data) {
 			$connexions[] = new Connection($data);
@@ -60,8 +56,7 @@ class ConnectionManager extends Model
 
 	public function remove($id)
 	{
-        $this->getBdd();
-		$statement = 'DELETE FROM connection WHERE id = ?';
-		$this->db->prepare($statement,[(int) $id], true);
+        $query = 'DELETE FROM connection WHERE id = ?';
+		$this->db->prepare($query,[(int) $id], true);
 	}
 }

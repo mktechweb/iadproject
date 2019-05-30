@@ -2,53 +2,47 @@
 
 namespace App\Model\Manager;
 
-use App\Model\Model;
+use App\Repositories\Repository;
 use App\Model\Entity\User;
 
-class UserManager extends Model
-{
+class UserManager {
 	private $db;
 
-    public function __construct()
+    public function __construct(Repository $db)
     {
-        $this->db = new Model;
+        $this->db = $db;
     }
 
     public function add(User $user)
   	{
-  	    $this->getBdd();
-  		$statement = 'INSERT INTO user(login, email, password) VALUES(?, ?, ?)';
-  		$this->db->prepare($statement,[$user->getLogin(), $user->getEmail(), $user->getPassword()], true);
+        $query = 'INSERT INTO user(login, email, password) VALUES(?, ?, ?)';
+  		$this->db->prepare($query,[$user->getLogin(), $user->getEmail(), $user->getPassword()], true);
   	}
 
   	public function delete($id)
 	{
-        $this->getBdd();
-		$statement = 'DELETE FROM user WHERE id = ?';
-		$this->db->prepare($statement,[(int) $id], true);
+        $query = 'DELETE FROM user WHERE id = ?';
+		$this->db->prepare($query,[(int) $id], true);
 	}
 
 	public function update(User $user)
 	{
-        $this->getBdd();
-		$statement = 'UPDATE user SET login = ?, email = ?, password = ? WHERE id = ?';
-		$this->db->prepare($statement,[$user->getLogin(), $user->getEmail(), $user->getPassword(), $user->getId()], true);
+        $query = 'UPDATE user SET login = ?, email = ?, password = ? WHERE id = ?';
+		$this->db->prepare($query,[$user->getLogin(), $user->getEmail(), $user->getPassword(), $user->getId()], true);
 	}
 
-	public function find($id)
+	public function getUser($id)
 	{
-        $this->getBdd();
-		$statement = 'SELECT * FROM user WHERE id = ?';
-		$data = $this->db->prepare($statement,[(int) $id], true);
+        $query = 'SELECT * FROM user WHERE id = ?';
+		$data = $this->db->prepare($query,[(int) $id], true);
 
 		return new User($data);
 	}
 
-	public function findByLogin($login)
+	public function getUserByLogin($login)
 	{
-        $this->getBdd();
-		$statement = 'SELECT * FROM user WHERE login = ?';
-		$data = $this->db->prepare($statement,[$login], true);
+        $query = 'SELECT * FROM user WHERE login = ?';
+		$data = $this->db->prepare($query,[$login], true);
 
 		if ($data) {
 			return new User($data);
@@ -57,13 +51,12 @@ class UserManager extends Model
 		}
 	}
 
-	public function findAll()
+	public function getAllUsers()
 	{
-        $this->getBdd();
 		$users = [];
 
-		$statement = 'SELECT * FROM user';
-		$list = $this->db->prepare($statement,[] , false);
+        $query = 'SELECT * FROM user';
+		$list = $this->db->prepare($query,[] , false);
 
 		foreach ($list as $data) {
 			$users[] = new User($data);

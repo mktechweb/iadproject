@@ -1,7 +1,7 @@
 <?php
 namespace App\Controller;
 
-
+use App\App;
 use App\Model\Entity\Message;
 use App\Model\Entity\Connection;
 use App\Model\Manager\MessageManager;
@@ -10,8 +10,10 @@ use App\Model\Manager\ConnectionManager;
 
 class ChatController extends AppController
 {
+	
 	public function __construct()
 	{
+		parent::__construct();
 		if (!isset($_SESSION['auth'])) {
 			header("Location: /layout/login");
 			die();
@@ -20,7 +22,8 @@ class ChatController extends AppController
 
 	public function index(){
 		if(!empty($_POST)) {
-			$messageManager = new MessageManager();
+			$app = App::getInstance();
+			$messageManager = new MessageManager($app->getBdd());
 
 			$message = new Message([
 				"content" => $_POST['content'],
@@ -37,13 +40,14 @@ class ChatController extends AppController
 
 	public function refresh() 
 	{
-		$messageManager = new MessageManager();
-		$userManager = new UserManager();
-        $response = [];
+		$app = App::getInstance();
+		$messageManager = new MessageManager($app->getBdd());
+		$userManager = new UserManager($app->getBdd());
+		$resonse = [];
 
 		$messages = $messageManager->findAll();
 		foreach ($messages as $message) {
-			$user = $userManager->find($message->getUserid());
+			$user = $userManager->getUser($message->getUserid());
 			$response[$message->getId()]['content'] = $message->getContent();
 			$response[$message->getId()]['user'] = $user->getLogin();
 			$response[$message->getId()]['datetime'] = $message->getDatetime();
@@ -54,8 +58,9 @@ class ChatController extends AppController
 
 	public function checkConnection()
 	{
-		$connectionManager = new ConnectionManager();
-		$userManager = new UserManager();
+		$app = App::getInstance();
+		$connectionManager = new ConnectionManager($app->getBdd());
+		$userManager = new UserManager($app->getBdd());
 		$connections = $connectionManager->findAll();
 		$connectedUsers = [];
 		$new = true;
@@ -79,7 +84,7 @@ class ChatController extends AppController
 			) {
                 $connectionManager->remove($connection->getId());
 			} else {
-				$connectedUsers[] = $userManager->find($connection->getUserid())->getLogin();
+				$connectedUsers[] = $userManager->getUser($connection->getUserid())->getLogin();
 			}
 		}
 
@@ -89,7 +94,7 @@ class ChatController extends AppController
 				"login" => $_SESSION['login']
 			]);
             $connectionManager->add($newConnection);
-			$connectedUsers[] = $userManager->find($newConnection->getUserid())->getLogin();
+			$connectedUsers[] = $userManager->getUser($newConnection->getUserid())->getLogin();
 		}
 
 		echo json_encode($connectedUsers);
@@ -97,11 +102,23 @@ class ChatController extends AppController
 
 	public function logout()
 	{
-        $connectionManager = new ConnectionManager();
+		$app = App::getInstance();
+        $connectionManager = new ConnectionManager($app->getBdd());
 		$connection = $connectionManager->findByUserId($_SESSION['auth']);
         $connectionManager->remove($connection->getId());
 		unset($_SESSION['auth']);
 		unset($_SESSION['login']);
 		header("Location: /layout/login");
 	}
+
+	public function profil($id)
+    {
+        $app = App::getInstance();
+        $userManager = new UserManager($app->getBdd());
+        $user = $userManager->getUser($id);
+
+        var_dump($user);
+
+        echo "<h2>En cours de construction...</h2>";
+    }
 }

@@ -9,7 +9,7 @@
 
 <div class="row">
     <div class="col-md-4">
-        <?=$_SESSION['login']?> | <a href="/chat/logout">Logout</a>
+        <?=$_SESSION['login']?> | <a href="/chat/profil/<?=$_SESSION['auth']?>">My profil</a> | <a href="/chat/logout">Logout</a>
         <h2>Connected users</h2>
         <ul id="users" class="list-group"></ul>
     </div>
@@ -56,21 +56,21 @@
             }
         });
 
-    	$.ajax({
+        $.ajax({
             type : "POST",
             dataType : "json",
             url : "/chat/refresh",
             success : function(data) {
                 console.log(data);
-            	$("#messages").empty();
-            	for (result in data) {
-            	    console.log(data);
-					$("#messages").prepend('<li class="list-group-item"><strong>'
+                $("#messages").empty();
+                for (result in data) {
+                    console.log(data);
+                    $("#messages").prepend('<li class="list-group-item"><strong>'
                         + data[result].user + '</strong> :'
                         + data[result].content
                         + '<br /><i class="far fa-clock"></i> <em>'
                         + data[result].datetime  + '</em></li>');
-            	}
+                }
             }
         });
 
